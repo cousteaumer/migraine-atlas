@@ -1,0 +1,692 @@
+<title>Атлас мигрени</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
+<style>
+/* Layout: шапка с вкладками «Схема / Вики» → шкала фаз со шагами → анатомическая таблица слева, карточка шага справа; вики — оглавление слева, статья справа */
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --surface2:#F6F8FA; --ink:#17202B; --muted:#586577; --line:#C9D1DA; --soft:#E3E8ED;
+  --cgrp:#B4570F; --pacap:#3953CC; --link:#2B5FB8;
+  --ph-prodrom:#7A5BB5; --ph-aura:#8F6100; --ph-pain:#B4453A; --ph-post:#40705F; --warn-bg:#FBEDEB;
+  --f-display:"Spectral", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --pl-bg:#F4F6F8; --pl-ink:#1F2730; --pl-muted:#5E6873; --pl-nerve:#C8AE6E; --pl-nerve-on:#E9A800; --pl-vessel:#B5564B; --pl-glow:#FFC21A;
+  --pl-cgrp:#C2620F; --pl-pacap:#3953CC; --pl-prev:#2E8B7A;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1318; --surface:#161D24; --surface2:#1B232C; --ink:#E5EAF0; --muted:#9AA6B5; --line:#2F3A46; --soft:#232D38;
+  --cgrp:#F09A52; --pacap:#93A5FF; --link:#8DB4FF;
+  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1318; --surface:#161D24; --surface2:#1B232C; --ink:#E5EAF0; --muted:#9AA6B5; --line:#2F3A46; --soft:#232D38;
+  --cgrp:#F09A52; --pacap:#93A5FF; --link:#8DB4FF;
+  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font:16px/1.6 var(--f-body); padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-block:22px 48px}
+.wrap{max-width:1220px; margin:0 auto; display:flex; flex-direction:column; gap:18px}
+a{color:var(--link); text-underline-offset:3px}
+button:focus-visible, a:focus-visible{outline:2px solid var(--link); outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+
+.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px 24px}
+.top .ttl{display:flex; flex-direction:column; gap:4px}
+.eyebrow{font:500 12px/1 var(--f-mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+h1{font:600 clamp(26px,3.8vw,36px)/1.1 var(--f-display); margin:0; text-wrap:balance}
+.tabs{display:inline-flex; background:var(--soft); border-radius:10px; padding:3px; gap:2px}
+.tabs a{font:500 14px/1 var(--f-body); color:var(--muted); text-decoration:none; border-radius:8px; padding:9px 16px}
+.tabs a[aria-current="page"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* шкала фаз */
+.timeline{overflow-x:auto; padding:4px 4px 6px; margin:-4px -4px 0}
+.tl-row{display:flex; gap:8px; min-width:max-content; align-items:stretch}
+@media (min-width:641px){ .tl-row{flex-wrap:wrap; min-width:0; row-gap:12px} }
+@media (max-width:640px){ .ph .ph-h{position:sticky; left:0; align-self:flex-start} .tl-row{padding-right:40px} .timeline{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)} }
+.ph{display:flex; flex-direction:column; gap:6px; border-top:4px solid var(--line); padding-top:6px}
+.ph .ph-h{display:flex; align-items:baseline; gap:8px; padding-inline:2px; font-size:13px; white-space:nowrap}
+.ph .ph-h b{font-weight:600}
+.ph .ph-h span{font:500 11.5px var(--f-mono); color:var(--muted)}
+.ph.prodrom{border-color:var(--ph-prodrom)} .ph.prodrom b{color:var(--ph-prodrom)}
+.ph.aura{border-color:var(--ph-aura); border-top-style:dashed} .ph.aura b{color:var(--ph-aura)}
+.ph.pain{border-color:var(--ph-pain)} .ph.pain b{color:var(--ph-pain)}
+.ph.post{border-color:var(--ph-post)} .ph.post b{color:var(--ph-post)}
+.ph.none{border-color:transparent}
+.ph .pills{display:flex; gap:5px}
+.pill{display:flex; align-items:center; gap:7px; font:500 13.5px/1 var(--f-body); color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:6px 11px 6px 6px; cursor:pointer; white-space:nowrap}
+.pill .n{display:inline-grid; place-items:center; width:21px; height:21px; border-radius:50%; background:var(--soft); color:var(--ink); font:600 11.5px/1 var(--f-mono)}
+.pill.done{color:var(--ink)} .pill.done .n{background:var(--ink); color:var(--surface)}
+.pill[aria-current="step"]{color:var(--ink); border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.pill[aria-current="step"] .n{background:var(--pl-glow); color:#1F2730}
+.tl-note{font-size:12px; color:var(--muted); margin-top:2px; position:sticky; left:0; width:max-content; max-width:calc(100vw - 40px)}
+
+.main{display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:18px; align-items:start; position:relative}
+@media (max-width:940px){ .main{grid-template-columns:minmax(0,1fr)} }
+
+/* таблица */
+figure{margin:0; background:var(--pl-bg); border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; min-width:0}
+@media (min-width:941px){ figure{position:sticky; top:calc(env(safe-area-inset-top,0px) + 12px)} }
+.plate{overflow-x:auto}
+svg.head{display:block; width:100%; min-width:540px; height:auto}
+figure{container-type:inline-size}
+.plate-cap, .lab-n{display:none}
+@container (max-width:640px){ svg.head{min-width:0} .lab text.t, .lab text.s{display:none} .lab-n{display:inline} svg.head .lab-n circle{fill:var(--pl-ink)} svg.head .lab-n text{fill:var(--pl-bg); font:700 15px var(--f-body)} .plate-cap{display:flex; flex-direction:column; gap:6px; margin:0; padding:12px 14px 0; list-style:none; font-size:15px; line-height:1.35; color:var(--pl-ink)} .plate-cap li{display:flex; gap:8px; align-items:baseline} .plate-cap b{flex:none; display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; background:var(--pl-ink); color:var(--pl-bg); font:600 12px/1 var(--f-mono)} .plate-cap span{color:var(--pl-muted); font-size:13.5px} }
+svg.head text{font-family:var(--f-body); fill:var(--pl-ink)}
+.atlas{pointer-events:none; filter:var(--pl-dim,none)}
+.nerve{fill:none; stroke:var(--pl-nerve); stroke-width:1.15; stroke-linecap:round} .nerve.thin{stroke-width:.75}
+.ganglion,.sensor{fill:var(--pl-nerve); stroke:#8E7A45; stroke-width:.4}
+.vessel{fill:none; stroke:var(--pl-vessel); stroke-width:1.05; stroke-linecap:round; transition:stroke-width .6s} .vessel.wide{stroke-width:2.3}
+.on{filter:url(#glow)}
+.nerve.on{stroke:var(--pl-nerve-on); stroke-width:1.9} .nerve.thin.on{stroke-width:1.3} .ganglion.on,.sensor.on{fill:var(--pl-nerve-on); stroke:#8F6100; stroke-width:.8}
+.zone{fill:var(--pl-glow); fill-opacity:.62; opacity:0; transition:opacity .4s} .zone.on{opacity:1; stroke:#8F6100; stroke-width:.7}
+.lbrain.on{stroke:#E39A00; stroke-width:1.3}
+.dura2{fill:none; stroke:#E39A00; stroke-width:1.4; opacity:0; transition:opacity .4s} .dura2.on{opacity:1}
+/* активное мерцает: плавный цикл 2 с без резких вспышек; вне экрана и при «уменьшить движение» стоит */
+svg.head .on, .lg-on circle{animation:pulse 2s ease-in-out .4s infinite}
+svg.head .lbrain.on{animation-name:cpulse}
+@keyframes pulse{50%{opacity:.3}}
+@keyframes cpulse{50%{fill:#FFDF8A}}
+svg.head.idle .on{animation-play-state:paused}
+.route{fill:none; stroke:var(--pl-ink); stroke-width:1.35; stroke-linecap:round; stroke-linejoin:round; transition:opacity .5s}
+.route.now{transition:stroke-dashoffset 1.1s ease, opacity .5s}
+.route.faint{opacity:.22}
+.pc{fill:var(--pl-cgrp)} .pp{fill:var(--pl-pacap)}
+.mol{opacity:0; transition:opacity .5s} .mol.show{opacity:1}
+.play .mol.show circle{animation:breathe 1.8s ease-in-out infinite}
+.play .mol.show circle:nth-child(2n){animation-delay:.6s} .play .mol.show circle:nth-child(3n){animation-delay:1.1s}
+@keyframes breathe{50%{opacity:.35}}
+.loopg{opacity:0; transition:opacity .4s} .loopg.show{opacity:1}
+.loop{fill:none; stroke:#E39A00; stroke-width:1.5; stroke-linecap:round; stroke-dasharray:2.6 2.2; animation:loopflow 1s linear infinite; animation-play-state:paused}
+.play .loop{animation-play-state:running}
+@keyframes loopflow{to{stroke-dashoffset:-4.8}}
+.inhib{fill:none; stroke:#2E8B7A; stroke-width:1.3; stroke-dasharray:2 1.6; opacity:0; transition:opacity .4s}
+.inhib.show{opacity:1; animation:inhibflow 1.2s linear infinite; animation-play-state:paused} .play .inhib.show{animation-play-state:running}
+@keyframes inhibflow{to{stroke-dashoffset:-3.6}}
+.pacap-path{fill:none; stroke:var(--pl-pacap); stroke-width:.7; stroke-dasharray:1.4 1.8; opacity:0; transition:opacity .5s} .pacap-path.show{opacity:.9}
+.wave{fill:none; stroke:var(--pl-glow); stroke-width:2.4; opacity:0; transform-box:fill-box; transform-origin:center; transform:scale(.05)}
+#csd.show .wave{opacity:.7; transform:scale(.4)} #csd.show .w2{opacity:.45; transform:scale(.7)} #csd.show .w3{opacity:.25; transform:scale(1)}
+.play #csd.show .wave{animation:csd 3.6s ease-out infinite}
+.play #csd.show .w2{animation-delay:1.2s} .play #csd.show .w3{animation-delay:2.4s}
+@keyframes csd{0%{transform:scale(.05); opacity:.95} 100%{transform:scale(1); opacity:0}}
+.lab{opacity:0; transition:opacity .35s} .lab.show{opacity:1}
+.lab .t{font-size:14.5px; font-weight:600} .lab .s{font-size:12px; fill:var(--pl-muted)}
+.lab line{stroke:var(--pl-ink); stroke-width:.9} .lab circle{fill:var(--pl-ink)}
+.drug{opacity:0; transition:opacity .4s} .drug.show{opacity:1}
+/* профилактика: щиты там, где она действует; пунктир и «?» — предположение по опытам на животных */
+.prv{opacity:0; transition:opacity .4s} .prv.show{opacity:1}
+.shield{fill:var(--pl-prev); stroke:var(--pl-bg); stroke-width:.7} .shield.q{fill:var(--pl-bg); stroke:var(--pl-prev); stroke-width:.8; stroke-dasharray:1.5 1}
+svg.head .prv text{fill:var(--pl-prev); font:700 6px var(--f-body)}
+.drug rect{fill:var(--pl-ink)} .drug text{fill:var(--pl-bg)!important; font:600 5.4px var(--f-mono)!important}
+@media (prefers-reduced-motion: reduce){ .route.now,.vessel,.mol,.lab,.drug,.prv,.pacap-path,.zone,.dura2,.loopg{transition:none} .mol.show circle,#csd.show .wave,.loop,.inhib.show,svg.head .on,.lg-on circle{animation:none} }
+.plate-legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:10px 14px 12px; font-size:12.5px; color:var(--pl-muted); border-top:1px solid var(--line)}
+.plate-legend span{display:inline-flex; align-items:center; gap:6px}
+.plate-legend .credit{display:block; font-size:12px}
+.plate-legend a{color:inherit}
+.plate-legend [hidden]{display:none}
+.plate-legend .lg-drug{display:inline-grid; place-items:center; width:20px; height:16px; border-radius:3px; background:var(--pl-ink); color:var(--pl-bg); font:600 11px/1 var(--f-mono)}
+.replay{font:500 13px/1 var(--f-body); color:var(--pl-ink); background:none; border:1px solid var(--line); border-radius:8px; padding:7px 10px; cursor:pointer}
+.replay:hover{border-color:var(--pl-ink)}
+
+/* карточка шага */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; gap:12px; min-width:0}
+.card-body{display:flex; flex-direction:column; gap:12px; transition:opacity .16s}
+.card-body.swap{opacity:0}
+.meta{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.stepno{font:500 12px/1 var(--f-mono); letter-spacing:.06em; color:var(--muted); text-transform:uppercase}
+.phase-tag{font:600 11.5px/1 var(--f-mono); letter-spacing:.04em; padding:4px 8px; border-radius:6px; border:1px solid currentColor}
+.phase-tag.prodrom{color:var(--ph-prodrom)} .phase-tag.aura{color:var(--ph-aura)} .phase-tag.pain{color:var(--ph-pain)} .phase-tag.post{color:var(--ph-post)}
+.time{font-size:13px; color:var(--muted)}
+.card h2{margin:0; font:600 24px/1.2 var(--f-display); text-wrap:balance}
+.card h3{margin:4px 0 0; font:600 14px/1.3 var(--f-body); color:var(--ink)}
+.card p{margin:0; max-width:64ch}
+.prose{display:flex; flex-direction:column; gap:10px}
+.card ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:4px}
+.feel{background:var(--surface2); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:8px}
+.warn{border:1px solid var(--ph-pain); border-left-width:4px; background:var(--warn-bg); border-radius:10px; padding:12px 14px; font-size:15px; display:flex; flex-direction:column; gap:4px}
+.warn b{font-weight:600; color:var(--ph-pain)}
+.pep{border-left:3px solid; padding:1px 0 1px 12px; display:flex; flex-direction:column; gap:3px; font-size:14px}
+.pep b{font:600 12.5px var(--f-mono)}
+.pep.c{border-color:var(--cgrp)} .pep.c b{color:var(--cgrp)}
+.pep.p{border-color:var(--pacap)} .pep.p b{color:var(--pacap)}
+button.term{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; text-decoration:underline dotted; text-decoration-color:var(--link); text-decoration-thickness:1.5px; text-underline-offset:4px}
+button.term:hover, button.term[aria-expanded="true"]{color:var(--link)}
+.more{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:14px}
+.src-d summary{cursor:pointer; font-size:14px; color:var(--muted); padding-block:6px} .src-d[open] summary{margin-bottom:6px}
+.nav{display:flex; gap:8px; justify-content:space-between; padding-top:4px}
+.nav button{font:600 14px/1 var(--f-body); border:1px solid var(--line); background:var(--surface2); color:var(--ink); border-radius:10px; padding:11px 16px; cursor:pointer}
+.nav button.primary{background:var(--ink); color:var(--surface); border-color:var(--ink)}
+.nav button:disabled{opacity:.35; cursor:default}
+@media (max-width:940px){ .nav{position:fixed; left:0; right:0; bottom:0; z-index:4; background:var(--surface); margin:0; padding:8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); border-top:1px solid var(--line); box-shadow:0 -6px 18px rgba(0,0,0,.08)} #schemeView:not([hidden]) ~ footer{padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px))} .card-body.swap{opacity:1} .card-body > *{transition:opacity .16s} .card-body.swap > :not(.nav){opacity:0} }
+@media (pointer:coarse), (max-width:640px){ .tabs a{padding:15px 18px} .pill{min-height:44px; padding-block:8px} .ph .pills{gap:8px} .nav button{min-height:48px; padding-inline:20px} .doc-meta button{min-height:44px} .more a{display:inline-block; padding-block:11px} .srcs a, .plate-legend a{display:inline-block; padding-block:6px} }
+.pill:hover{border-color:var(--muted)} .pill:active{transform:scale(.97)}
+.tabs a:not([aria-current]):hover{color:var(--ink)}
+.nav button:not(:disabled):hover, .doc-meta button:hover{border-color:var(--ink)}
+.nav button:not(:disabled):active, .doc-meta button:active{transform:translateY(1px)}
+
+/* всплывающее объяснение */
+.pop{visibility:hidden; position:absolute; z-index:5; width:min(340px, calc(100% - 8px)); background:var(--surface); color:var(--ink); border:1px solid var(--ink); border-radius:12px; padding:14px 16px; box-shadow:0 10px 30px rgba(0,0,0,.18); display:flex; flex-direction:column; gap:8px; opacity:0; transform:translateY(-4px); transition:opacity .15s, transform .15s, visibility 0s linear .15s; pointer-events:none}
+.pop.open{visibility:visible; opacity:1; transform:none; pointer-events:auto; transition:opacity .15s, transform .15s}
+.pop h4{margin:0; font:600 17px/1.25 var(--f-display)}
+.pop p{margin:0; font-size:14px}
+.pop .row{display:flex; justify-content:space-between; align-items:center; gap:8px}
+.pop .x{border:0; background:none; color:var(--muted); font-size:24px; line-height:1; cursor:pointer; min-width:44px; min-height:44px; margin:-10px -12px -10px 0; border-radius:8px}
+
+/* вики */
+.wiki{display:grid; grid-template-columns:260px minmax(0,1fr); gap:24px; align-items:start}
+@media (max-width:860px){ .wiki{grid-template-columns:minmax(0,1fr)} .wiki nav{order:2} }
+.wiki nav{position:sticky; top:calc(env(safe-area-inset-top,0px) + 12px); background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 40px); overflow:auto}
+@media (max-width:860px){ .wiki nav{position:static; max-height:none} .wiki nav{display:none} .cards span{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden} }
+.wiki nav .nav-h{margin:0; font:600 13px/1.3 var(--f-body); color:var(--ink)}
+.wiki nav ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px}
+.wiki nav a{display:block; color:var(--ink); text-decoration:none; font-size:14px; padding:4px 8px; border-radius:6px}
+.wiki nav a:hover{background:var(--surface2)}
+.wiki nav a[aria-current="page"]{background:var(--soft); font-weight:600}
+article.doc{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px clamp(18px,3vw,36px) 28px; display:flex; flex-direction:column; gap:14px; min-width:0}
+article.doc h2{margin:0; font:600 clamp(26px,3.4vw,34px)/1.15 var(--f-display); text-wrap:balance}
+article.doc h3{margin:10px 0 0; font:600 19px/1.3 var(--f-display)}
+article.doc p, article.doc li{max-width:68ch}
+article.doc p{margin:0}
+article.doc ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px}
+.lead{font-size:16.5px; color:var(--ink); background:var(--surface2); border-radius:10px; padding:12px 14px}
+.doc-meta{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; font-size:13px; color:var(--muted)}
+.doc-meta button{font:600 13px/1 var(--f-body); border:1px solid var(--line); background:var(--surface2); color:var(--ink); border-radius:8px; padding:8px 12px; cursor:pointer}
+.srcs{list-style:none; margin:0; padding:0!important; display:flex; flex-direction:column; gap:3px; font-size:13px}
+.srcs a{color:var(--muted)} .srcs a:hover{color:var(--ink)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px}
+.cards a{display:flex; flex-direction:column; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px; text-decoration:none; color:var(--ink)}
+.cards a:hover{border-color:var(--ink)}
+.cards b{font:600 16px/1.25 var(--f-display)}
+.cards span{font-size:13.5px; color:var(--muted)}
+.grp-h{margin:8px 0 0; font:600 15px/1.3 var(--f-body); color:var(--ink)}
+.warn, .pep, .pop p, .more{font-size:15px}
+.cards span{font-size:14.5px}
+footer{color:var(--muted); font-size:12.5px; max-width:90ch}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.skip:focus{position:static; width:auto; height:auto; clip:auto; display:inline-block; padding:8px 12px; background:var(--surface); border:1px solid var(--ink); border-radius:8px}
+/* ---- мобильная вёрстка (ревью 2026-10-05) ---- */
+/* F1: на телефоне вместо оглавления из 33 ссылок под статьёй — «← Все статьи» сверху и соседние статьи снизу; на десктопе не видно */
+.doc-back, .doc-pager{display:none}
+@media (max-width:860px){
+  .doc-back{display:inline-flex; align-items:center; align-self:flex-start; order:-4; min-height:44px; margin:-8px 0 -6px; font:500 15px/1.2 var(--f-body); text-decoration:none}
+  .doc-pager{display:flex; flex-direction:column; gap:8px; margin-top:10px}
+  .doc-pager a{display:flex; flex-direction:column; gap:3px; min-height:56px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); color:var(--ink); text-decoration:none; font:600 16px/1.3 var(--f-display)}
+  .doc-pager small{font:500 13px/1.2 var(--f-body); color:var(--muted)}
+}
+/* F2: в вики на телефоне h1 «Вики» дублирует активную вкладку — прячем визуально (для читалок остаётся); вкладки на всю ширину; заголовок статьи — первым */
+@media (max-width:640px){
+  .in-wiki .top .ttl{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .tabs{display:flex; width:100%} .tabs a{flex:1; text-align:center}
+}
+@media (max-width:860px){ article.doc h2{order:-3} .doc-meta{order:-2} }
+/* F3: на телефоне статья и карточка шага — во всю ширину экрана, поля 16 px; лид без серой плашки */
+@media (max-width:640px){
+  article.doc, .card{margin-inline:-16px; border-radius:0; border-inline:0}
+  article.doc{padding:16px 16px 28px}
+  .nav{border-radius:0}
+  .lead{background:none; border-radius:0; padding:2px 0 2px 12px; border-left:3px solid var(--line)}
+}
+/* F4: связанные статьи на телефоне — список строк по 44+ px вместо абзаца через « · » */
+@media (max-width:860px){
+  .doc-rel{display:flex; flex-direction:column; max-width:none}
+  .doc-rel .sep{display:none}
+  .doc-rel a{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:10px 0; border-top:1px solid var(--soft); text-decoration:none}
+  .doc-rel a::after{content:"→"; flex:none; color:var(--muted)}
+  .doc-rel a:last-of-type{border-bottom:1px solid var(--soft)}
+}
+/* F5: источники статьи на телефоне свёрнуты, как в карточке шага */
+@media (max-width:860px){ .doc-src summary{font:600 19px/1.3 var(--f-display); color:var(--ink); padding-block:12px} .doc-src[open] summary{margin-bottom:8px} }
+/* F8: пояснение термина на телефоне — нижний лист над панелью шагов, ссылка 44 px */
+@media (max-width:640px){
+  .pop{position:fixed; left:8px!important; right:8px; top:auto!important; bottom:calc(72px + env(safe-area-inset-bottom, 0px)); width:auto; max-height:min(60vh, 440px); overflow:auto; z-index:6; box-shadow:0 -8px 30px rgba(0,0,0,.22); transform:translateY(8px)}
+  #pop-a{display:inline-block; padding-block:11px}
+}
+/* F9: список статей на телефоне — заголовки групп крупнее, статьи компактными строками без обрезанных описаний */
+@media (max-width:640px){
+  .grp-h{font:600 21px/1.25 var(--f-display); margin:28px 0 10px}
+  #wikimain > .grp-h:first-child{margin-top:0}
+  .cards{gap:0; background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .cards a{flex-direction:row; align-items:center; justify-content:space-between; gap:12px; min-height:52px; padding:12px 14px; border:0; border-radius:0; border-top:1px solid var(--soft)}
+  .cards a:first-child{border-top:0}
+  .cards a:hover{border-color:var(--soft); background:var(--surface2)}
+  .cards a::after{content:"›"; flex:none; font-size:22px; line-height:1; color:var(--muted)}
+  .cards span{display:none}
+}
+/* F10: увеличенные зоны оглавления должны идти ПОСЛЕ базового .wiki nav a{padding:4px 8px} */
+@media (pointer:coarse){ .wiki nav a{padding-block:11px} }
+/* F11: служебный текст на телефоне не мельче 13 px, длительность в статье — 15 px */
+@media (max-width:640px){
+  .doc-meta{font-size:15px; color:var(--ink)} .doc-meta button{font-size:14px}
+  .ph .ph-h span, .phase-tag, .stepno, .tl-note, .plate-legend .credit, footer{font-size:13px}
+  .plate-legend, .srcs, .time{font-size:14px}
+}
+/* F13: «Разделы статьи» — только на телефоне */
+.doc-toc{display:none}
+@media (max-width:860px){
+  .doc-toc{display:block; border:1px solid var(--line); border-radius:12px; padding:0 14px}
+  .doc-toc summary{cursor:pointer; font-weight:600; min-height:44px; padding-block:11px}
+  .doc-toc ol{margin:0 0 8px; padding-left:22px}
+  .doc-toc button{font:inherit; color:var(--link); background:none; border:0; padding:9px 0; min-height:44px; text-align:left; cursor:pointer}
+}
+/* F14: зоны нажатия на схеме: «Повторить движение», «Источники (N)», термины в тексте */
+@media (pointer:coarse), (max-width:640px){
+  .replay{min-height:44px; padding-inline:14px}
+  .src-d summary{padding-block:12px}
+  button.term{position:relative}
+  button.term::after{content:""; position:absolute; inset:-9px -2px}
+}
+/* F16: на телефоне активная вкладка отмечена ещё и полосой снизу — заметно в обеих темах */
+@media (max-width:640px){ .tabs a[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--link), 0 1px 2px rgba(0,0,0,.12)} }
+</style>
+
+<div class="wrap" lang="ru">
+  <a class="sr skip" href="#card">К тексту шага</a>
+  <div class="top">
+    <div class="ttl">
+      <div class="eyebrow">мигрень · личная вики</div>
+      <h1 id="pagetitle">Как идёт приступ</h1>
+    </div>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#scheme" id="tab-scheme" aria-current="page">Схема приступа</a>
+      <a href="#wiki" id="tab-wiki">Вики</a>
+    </nav>
+  </div>
+
+  <section id="schemeView">
+    <p id="sr-step" class="sr" aria-live="polite"></p>
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div class="timeline" role="group" aria-label="Фазы и шаги приступа"><div class="tl-row" id="timeline"></div><div class="tl-note">Шкала не в масштабе: фазы длятся от минут до суток.</div></div>
+      <div class="main" id="main">
+        <figure>
+          <div class="plate">%%PLATE%%</div>
+          <ol class="plate-cap" id="platecap" aria-label="Подписи на рисунке"></ol>
+          <div class="plate-legend">
+            <span data-when="mol"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" style="fill:var(--pl-cgrp)"/></svg>CGRP</span>
+            <span data-when="mol"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" style="fill:var(--pl-pacap)"/></svg>PACAP</span>
+            <span data-when="loop" hidden><svg aria-hidden="true" width="26" height="8" viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" style="stroke:#E39A00" stroke-width="2.5" stroke-dasharray="3.5 2.5"/></svg>петля усиления</span>
+            <span data-when="inhib" hidden><svg aria-hidden="true" width="26" height="8" viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" style="stroke:#2E8B7A" stroke-width="2.5" stroke-dasharray="3 2"/></svg>тормоза боли</span>
+            <span data-when="csd" hidden><svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" style="stroke:var(--pl-glow)" stroke-width="2"/></svg>волна по коре</span>
+            <span data-when="drugs" hidden><b class="lg-drug" aria-hidden="true">⊣</b>здесь лекарство перекрывает путь</span>
+            <span data-when="prev" hidden><svg aria-hidden="true" width="14" height="16" viewBox="-5 -5.5 10 11"><path d="M0,-4.6 L3.9,-3.1 V0.4 C3.9,2.9 2,4.2 0,4.9 C-2,4.2 -3.9,2.9 -3.9,0.4 V-3.1 Z" style="fill:var(--pl-prev)"/></svg>здесь действует профилактика</span>
+            <span data-when="prev" hidden><svg aria-hidden="true" width="14" height="16" viewBox="-5 -5.5 10 11"><path d="M0,-4.6 L3.9,-3.1 V0.4 C3.9,2.9 2,4.2 0,4.9 C-2,4.2 -3.9,2.9 -3.9,0.4 V-3.1 Z" style="fill:none; stroke:var(--pl-prev)" stroke-width="1" stroke-dasharray="1.6 1.1"/><text x="0" y="2.3" text-anchor="middle" style="fill:var(--pl-prev); font:700 6.5px var(--f-body)">?</text></svg>предположение по опытам на животных</span>
+            <span><svg width="26" height="8" viewBox="0 0 26 8"><line x1="1" y1="4" x2="25" y2="4" style="stroke:var(--pl-ink)" stroke-width="3" stroke-linecap="round"/></svg>куда дошёл сигнал</span>
+            <span class="lg-on"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" style="fill:var(--pl-glow)"/></svg>активно сейчас</span>
+            <button type="button" class="replay" id="replay">Повторить движение</button>
+            <span>Нервы, узлы, сосуд и путь сигнала нарисованы поверх условно: на срезе по середине головы их не видно.</span>
+            <span class="credit">Рисунок головы: <a href="https://commons.wikimedia.org/wiki/File:Skull_and_brain_sagittal.svg" target="_blank" rel="noopener">Patrick J. Lynch, medical illustrator</a>, <a href="https://creativecommons.org/licenses/by/2.5" target="_blank" rel="noopener">CC BY 2.5</a>; убраны лицо и челюсть, добавлены метки и схема.</span>
+          </div>
+        </figure>
+        <article class="card" id="card" tabindex="-1"><div class="card-body" id="cardbody"></div></article>
+        <div class="pop" id="pop" role="dialog" aria-modal="false" aria-labelledby="pop-h">
+          <div class="row"><h4 id="pop-h"></h4><button class="x" type="button" id="pop-x" aria-label="Закрыть">×</button></div>
+          <p id="pop-p"></p>
+          <a id="pop-a" href="#wiki">Читать статью полностью →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="wikiView" hidden>
+    <div class="wiki">
+      <nav id="wikinav" aria-label="Статьи вики"></nav>
+      <div id="wikimain"></div>
+    </div>
+  </section>
+
+  <footer>Собрано по статьям из чата Vera Health о мигрени (ссылки на PubMed внизу каждого шага и статьи). Это объяснение механизма, а не рекомендация по лечению: препараты подбирает невролог.</footer>
+</div>
+
+<script id="wikidata" type="application/json">%%WIKI%%</script>
+<script>
+const WIKI = (() => { try { return JSON.parse(document.getElementById('wikidata').textContent); } catch(e){ return []; } })();
+const W = Object.fromEntries(WIKI.map(a => [a.slug, a]));
+const PM = id => `https://pubmed.ncbi.nlm.nih.gov/${id}/`;
+const SRC = {
+  kuburas:['Kuburas 2023 · J Headache Pain — общие и разные роли CGRP и PACAP',37009867],
+  puledda:['Puledda 2023 · J Neurol — от патофизиологии к лечению',37029836],
+  eigen21:['Eigenbrodt 2021 · Nat Rev Neurol — диагностика мигрени в 10 шагов',34145431],
+  premon:['Eigenbrodt 2022 · J Headache Pain — предвестники: систематический обзор',36371152],
+  trig:['Karsan 2021 · J Neurol — «триггеры» как ранние симптомы приступа',33399964],
+  joppek:['Joppeková 2025 · J Headache Pain — как выглядит аура',40597581],
+  hougaard:['Hougaard 2025 · PLoS Biol — связь ауры и головной боли',40498799],
+  christ:['Christensen 2024 · Trends Neurosci — оболочки и мигрень',39304416],
+  ashina19:['Ashina 2019 · Lancet Neurol — тригеминоваскулярная система',31160203],
+  goadsby17:['Goadsby 2017 · Physiol Rev — мигрень как нарушение обработки сигналов',28179394],
+  iyengar:['Iyengar 2017 · Pain — CGRP и сенситизация',28301400],
+  pietra:['Pietra 2025 · Cephalalgia — PACAP против CGRP',40931761],
+  alk:['Al-Karagholi 2025 · J Headache Pain — приступы от PACAP не зависят от CGRP',40229719],
+  burstein:['Burstein 2015 · J Neurosci — множество процессов при мигрени',25926442],
+  brennan:['Brennan 2018 · Neuron — системный взгляд на мигрень',29518355],
+  allod:['Pijpers 2023 · J Headache Pain — аллодиния при хронической мигрени',37644420],
+  pijpers:['Pijpers 2023 · J Headache Pain — аллодиния и хронизация',37644420],
+  burstein04:['Burstein 2004 · Ann Neurol — триптаны и аллодиния: гонка со временем',14705108],
+  ricciotti:['Ricciotti 2011 · Arterioscler Thromb Vasc Biol — простагландины и воспаление',21508345],
+  levy08:['Levy 2008 · Eur J Neurosci — напроксен и окончания оболочки (животные)',18333963],
+  jakub07:['Jakubowski 2007 · Neuroscience — напроксен и нейроны ствола (животные)',17651900],
+  rabbie:['Rabbie 2013 · Cochrane — ибупрофен при приступе мигрени',23633348],
+  juhasz03:['Juhasz 2003 · Pain — CGRP в крови во время приступа и после него',14659530],
+  weiller95:['Weiller 1995 · Nat Med — активность ствола мозга при приступе',7585147],
+  nascimento14:['Nascimento 2014 · Ann Clin Transl Neurol — опиоидная система среднего мозга во время приступа',25328905],
+  blau82:['Blau 1982 · J Neurol Neurosurg Psychiatry — сон и окончание приступа',7086442],
+  munafo26:['Munafò 2026 · Headache — рвота и облегчение боли при мигрени',42199046],
+  zhang:['Zhang 2023 · Front Mol Neurosci — глия при мигрени',37456527],
+  cog:['Gil-Gouveia 2015 · Cephalalgia — когнитивные нарушения во время приступа',25324500],
+  jak:['Jakubowska 2025 · Front Pharmacol — гепанты',41357877],
+  edv:['Edvinsson 2022 · J Intern Med — CGRP выделяется при приступе',35532284],
+  martin:['Martinelli 2026 · Front Neurol — антитела к CGRP',42741009],
+  hope:['Ashina 2024 · NEJM — антитело к PACAP',39231342],
+  prodrome:['Goadsby 2025 · Nature Med — уброгепант в продроме',40355614],
+  karsan23:['Karsan 2023 · J Headache Pain — снимки мозга в фазе предвестников',37563570],
+  ferrari:['Ferrari 2022 · Nat Rev Dis Primers — мигрень: общий обзор',35027572],
+  steiner:['Steiner 2019 · J Headache Pain — руководство EHF для первичного звена',31113373],
+  robbins21:['Robbins 2021 · JAMA — профилактика: 1–3 дня мигрени в месяц сверх плацебо',33974014],
+  russo26:['Russo 2026 · Annu Rev Med — препараты против CGRP: доля ответивших',41296986],
+  edvp:['Edvinsson 2022 · J Intern Med — как действуют антитела и гепанты, история старых препаратов',35532284],
+  marichal21:['Marichal-Cancino 2021 · Expert Rev Neurother — механизмы профилактики неясны',34388955],
+  ayata06:['Ayata 2006 · Ann Neurol — профилактические препараты подавляют волну у крыс',16450381],
+  harriott25:['Harriott 2025 · Nat Rev Neurol — волна ауры как мишень лечения',40813918],
+  burstein20:['Burstein 2020 · Headache — механизм онаботулотоксина А (обзор)',32602955],
+  lemmens19:['Lemmens 2019 · J Headache Pain — аэробные нагрузки при мигрени',30764753],
+  sommer13:['Sommer 2013 · Ther Adv Neurol Disord — топирамат и мышление',23858325]
+};
+const PH = {prodrom:['Предвестники','до 48 ч'], aura:['Аура','5–60 мин · не у всех'], pain:['Боль','4–72 ч'], post:['Последствия','до 48 ч']};
+
+const STEPS = [
+  {id:'map', short:'Мигрень', title:'Что такое мигрень',
+    blocks:[
+      {h:'Как читать схему', p:['Голова в разрезе сбоку: лоб слева, затылок справа, лицо и челюсть убраны. Шкала сверху — фазы приступа и сколько они длятся. Шаги идут по порядку: каждый зажигает одно место, чёрная линия показывает, куда дошёл сигнал. Подчёркнутые слова можно нажать — появится объяснение и ссылка на статью в вики.']},
+      {h:'Что это', p:['[[migren|Мигрень]] — болезнь нервной системы, а не просто сильная головная боль. Её главная черта — повторяющиеся приступы: умеренная или сильная боль плюс признаки того, что мозг временно работает иначе: свет кажется слишком ярким, мутит, трудно сосредоточиться.',
+        'Мигрень бывает примерно у 15% людей в течение года, у женщин 18–50 лет — почти втрое чаще, чем у мужчин. По числу лет, прожитых с ограничениями из-за болезни, она на втором месте в мире.']},
+      {h:'Что сегодня считают причиной', list:[
+        'Наследственная настройка мозга. Гены объясняют 35–60% риска; найдены и частые, и редкие варианты генов, влияющие на склонность к мигрени.',
+        'Мозг хуже управляет потоком сигналов от органов чувств и тела. Его чувствительность меняется циклично, и когда она доходит до порога, запускается приступ.',
+        'Приступ зарождается в глубине мозга: за 24–48 часов до боли меняется работа [[gipotalamus|гипоталамуса]] и его связи со стволом мозга.',
+        'Боль — поздняя часть приступа. Её дают [[datchiki-boli|датчики боли]] в оболочке мозга, а белки-усилители [[cgrp|CGRP]] и [[pacap|PACAP]] раскачивают сигнал.',
+        'Расширение сосудов раньше считали причиной мигрени. Сейчас его считают вторичным явлением.',
+        '[[triggery|Триггеры]] — не причина, а последняя капля для уже чувствительной системы. А часть «триггеров» на деле уже начавшийся приступ.']},
+      {h:'Чего пока не знают', p:['Что именно запускает каждый конкретный приступ и какое звено включается первым, до конца не ясно. Как связаны [[aura|аура]] и боль, тоже до сих пор обсуждают.']}
+    ],
+    lit:[], labels:['dura','v1','tg','spg','hyp','thal','cortex','vis','tcc'], route:0, src:['eigen21','edv','joppek','goadsby17','puledda','karsan23','ashina19','kuburas','ferrari','steiner','trig','hougaard']},
+  {id:'prodrom', phase:'prodrom', short:'Пульт', title:'Пульт организма меняет настройки', time:'за несколько часов, иногда до 48 часов до боли',
+    what:['В глубине мозга есть [[gipotalamus|гипоталамус]] — «пульт», который управляет сном, голодом, гормонами и реакцией на стресс. Перед приступом его работа меняется. На снимках мозга это видно ещё за сутки–двое до боли.',
+          'Пульт связан со [[stvol-mozga|стволом мозга]] и болевой системой. Когда режим сбивается — недосып, пропуск еды, стресс, — порог срабатывания болевой системы снижается. Голова ещё не болит, но система уже «на взводе».',
+          'Часть того, что кажется [[triggery|триггерами]] (тяга к определённой еде, усталость, напряжение шеи), на самом деле уже первые симптомы начавшегося приступа — [[prodrom|предвестники]].'],
+    feel:['усталость и зевота','раздражительность, сниженное настроение','тяга к определённой еде','думать и подбирать слова тяжелее обычного','скованность шеи'],
+    pep:{p:'После введения [[pacap|PACAP-38]] предвестники были у 11 из 23 человек, у которых начался приступ. После введения [[cgrp|CGRP]] — у 2 из 25. Возможно, PACAP сильнее связан с этой фазой.'},
+    lit:['hyp'], labels:['hyp'], route:0, src:['puledda','eigen21','premon','trig','kuburas']},
+  {id:'aura', phase:'aura', short:'Волна', title:'Волна по коре — аура', time:'обычно 5–60 минут, чаще перед болью; бывает примерно у трети людей с мигренью',
+    what:['По коре мозга медленно ползёт [[volna-aury|волна]]: нервные клетки сначала сильно возбуждаются, а потом на время затихают. Что человек почувствует, зависит от того, по какому участку коры проходит волна. Это и есть [[aura|аура]].',
+          'Чаще всего — больше чем в 9 случаях из 10 — волна идёт по зрительной коре в затылке. В поле зрения появляется мерцающая ломаная линия, похожая на край крепостной стены (её так и называют — «фортификационный спектр»). Она растёт дугой и уплывает к краю зрения, а за ней остаётся слепое пятно. Бывают и просто вспышки, мерцание, туман.',
+          'Если волна задевает участок, отвечающий за ощущения (примерно у трети людей с аурой), появляется покалывание или онемение, которое медленно расползается по руке или лицу. Если речевой участок — трудно подобрать или выговорить слово.'],
+    feel:['мерцающий зигзаг или дуга, которая растёт и уплывает в сторону','слепое пятно: часть картинки «пропадает»','вспышки, мерцание, «туман»','покалывание или онемение, медленно ползущее по руке или лицу','трудно подобрать слово или выговорить его'],
+    warn:'Если такое случилось впервые, началось внезапно, а не постепенно, длится дольше часа или появилась слабость в руке или ноге — нужна срочная помощь: так может выглядеть инсульт.',
+    lit:['csd'], labels:['vis'], route:0, src:['joppek','eigen21','hougaard']},
+  {id:'sensors', phase:'pain', short:'Датчики', title:'Датчики боли в оболочке срабатывают', time:'начало фазы боли',
+    what:['Мозг обёрнут плотной плёнкой — [[obolochka|твёрдой мозговой оболочкой]]. Сам мозг боли не чувствует. А в оболочке, особенно вокруг её сосудов, много [[datchiki-boli|датчиков боли]] — тонких нервных окончаний, которые реагируют на растяжение, давление и химические вещества.',
+          'Сейчас эти датчики начинают срабатывать. Что именно их запускает, до конца не ясно. Возможные причины — изменения в работе мозга во время предвестников или [[volna-aury|волна ауры]], которая может раздражать оболочку (эта связь спорная).'],
+    feel:['боли может ещё не быть или появляется тяжесть','ощущение, что «начинается»'],
+    lit:['dura','s1','s2','s3','vesselg'], labels:['dura'], route:0, src:['christ','ashina19','hougaard']},
+  {id:'nerve', phase:'pain', short:'Нерв', title:'Сигнал бежит по нерву к его узлу', time:'почти мгновенно',
+    what:['Датчики — это кончики [[trojnichnyj-nerv|тройничного нерва]], главного нерва чувствительности лица и головы. По нему сигнал бежит к [[trojnichnyj-uzel|узлу нерва]] у основания черепа. Там лежат «тела» этих нервных клеток: каждая клетка одной веткой смотрит в оболочку, другой — в ствол мозга.',
+          'Этот же нерв отвечает за кожу лба, глаза и виска. Мозг не различает, откуда пришёл сигнал: из оболочки или с лица. Поэтому боль от оболочки ощущается «снаружи» — в виске, за глазом, во лбу.'],
+    feel:['боль в виске, за глазом или во лбу','часто с одной стороны'],
+    lit:['s1','s2','twig','v1','tg'], labels:['v1','tg'], route:1, src:['goadsby17','ashina19']},
+  {id:'amp', phase:'pain', short:'Усилители', title:'Нерв выбрасывает усилители', time:'пока боль нарастает',
+    what:['Возбуждённый нерв не только передаёт сигнал, но и выбрасывает обратно в оболочку белок-усилитель [[cgrp|CGRP]]. Из [[krylonyobnyj-uzel|узла за носом]] приходит второй усилитель — [[pacap|PACAP]].',
+          'Оба расширяют сосуды оболочки. Вокруг сосудов могут включаться и местные иммунные клетки (у животных это показано для PACAP) — это [[nejrogennoe-vospalenie|нейрогенное воспаление]], оно не связано с инфекцией. Датчики становятся чувствительнее и срабатывают от того, на что раньше не реагировали. Это [[sensitizaciya|сенситизация]].',
+          'Так начинается [[petlya-usileniya|петля усиления]] — о ней следующий шаг.'],
+    feel:['боль нарастает и начинает пульсировать','усиливается от наклона, кашля, ходьбы','может слезиться глаз или закладывать нос'],
+    pep:{c:'Главный усилитель на этом шаге. На него нацелено большинство современных лекарств от мигрени.', p:'Работает параллельно. В исследовании блокада CGRP не помешала PACAP-38 вызвать приступ.'},
+    lit:['tg','s1','s2','s3','spg','twig'], labels:['dura','tg','spg'], route:1, wide:true, mol:true, src:['iyengar','pietra','alk','goadsby17']},
+  {id:'loop', phase:'pain', short:'Петля', title:'Петля: приступ раскручивает сам себя', time:'пока боль нарастает',
+    what:['Шаги «Датчики», «Нерв» и «Усилители» не проходят один раз. Они замыкаются в [[petlya-usileniya|петлю]]: сигнал → нерв выбрасывает усилители → датчики становятся чувствительнее → тот же толчок даёт более сильный сигнал → усилителей ещё больше. Это как микрофон у колонки: звук попадает обратно и превращается в нарастающий свист.',
+          'Таких петель несколько. В оболочке нерв, сосуды и иммунные клетки подстёгивают друг друга. В узле нерва CGRP «будит» клетки-спутники (глию), а они в ответ снова возбуждают нейроны (данные на животных).',
+          'Если петля крутится долго, подключается мозг: нейроны входа в ствол и таламуса тоже «раскачиваются» — это [[sensitizaciya|центральная сенситизация]]. Тогда боль поддерживается уже не только оболочкой.',
+          'Большинство лекарств от приступа работают именно здесь: уменьшают выброс CGRP, закрывают его рецептор или перехватывают сам CGRP.',
+          'Поэтому важно, на каком витке петли начато лечение. В исследовании триптан снимал боль за 2 часа в 93% приступов, пока не было болезненности кожи (аллодинии), и лишь в 15% — когда она уже развилась.'],
+    feel:['боль растёт, хотя причина вроде бы та же','то, что вначале не мешало (наклон, кашель, ходьба), начинает отдаваться в голове','если петля разогналась — больно касаться кожи головы, причёсываться, носить очки'],
+    lit:['tg','s1','s2','s3','twig'], labels:['dura','tg'], route:1, wide:true, mol:true, loop:true, src:['iyengar','zhang','christ','pijpers','ashina19','burstein04']},
+  {id:'stem', phase:'pain', short:'Ствол', title:'Сигнал входит в ствол мозга',
+    what:['Из узла нерва сигнал идёт в [[stvol-mozga|ствол мозга]] — в место, где сходятся сигналы от оболочки, лица, кожи головы и верхней части шеи.',
+          'Если сигналы идут долго и сильно, нервные клетки здесь тоже «раскачиваются» и начинают отвечать сильной болью даже на слабые сигналы ([[sensitizaciya|центральная сенситизация]]). Тогда больно становится от обычного прикосновения.',
+          'Рядом находятся центры, которые управляют тошнотой и рвотой, поэтому они подключаются к приступу.'],
+    feel:['боль отдаёт в затылок и шею','больно причёсываться, носить очки, шапку, серьги','тошнота, иногда рвота'],
+    lit:['tcc','root'], labels:['tcc'], route:2, src:['iyengar','burstein','brennan']},
+  {id:'thal', phase:'pain', short:'Диспетчер', title:'Диспетчер хуже фильтрует',
+    what:['Из ствола сигнал поднимается в [[talamus|таламус]] — диспетчер в центре мозга. Он решает, какие ощущения пропустить в сознание и насколько громко.',
+          'Считается, что во время приступа этот фильтр работает хуже (гипотеза): свет, звук и запахи доходят «на полной громкости». У животных в таламусе нашли клетки, которые отвечают и на боль от оболочки, и на свет. Отсюда, вероятно, [[svetoboyazn|светобоязнь и шумобоязнь]]. Если «раскачивается» и сам таламус, болезненность кожи может выйти за пределы головы.'],
+    feel:['обычный свет режет глаза','звуки раздражают, хочется тишины','мешают запахи','кожа может болеть не только на голове'],
+    lit:['thal'], labels:['thal'], route:3, src:['goadsby17','burstein','allod']},
+  {id:'cortex', phase:'pain', short:'Кора', title:'Кора: всё это нужно осознать',
+    what:['[[kora|Кора]] — наружный слой мозга, где ощущения становятся осознанными. Сейчас она получает сразу и боль, и слишком громкие ощущения.',
+          'Во время приступа у многих замедляется мышление, труднее сосредоточиться и подбирать слова — это [[kognitivnye-simptomy|когнитивные симптомы]]. Они хорошо описаны, но почему возникают, точно не известно. Одно из объяснений (гипотеза): мозг занят болью и слишком громкими ощущениями, и на обычные задачи остаётся меньше сил.'],
+    feel:['чтобы понять собеседника и сформулировать ответ, нужно напрячься','мысли медленнее, теряется нить','легче раздражаться','речь не пропадает — просто требует больше сил'],
+    lit:['cortex'], labels:['cortex'], route:4, src:['cog','burstein']},
+  {id:'end', phase:'pain', short:'Стихает', title:'Как боль стихает', time:'без лечения — в пределах 4–72 часов',
+    what:['Без лечения боль при мигрени [[okonchanie-pristupa|стихает сама]], обычно в пределах 4–72 часов. Как именно мозг «выключает» приступ, изучено плохо: есть отдельные находки, но цельной картины нет.',
+          'Что известно. Уровень [[cgrp|CGRP]] в крови растёт во время приступа и возвращается к исходному после его окончания (в опытах с нитроглицерином). Причина это окончания или его следствие — неизвестно.',
+          'В стволе мозга есть собственные «тормоза» боли. У животных их стимуляция подавляет болевые сигналы на входе в ствол. У людей во время приступа с аллодинией в среднем мозге включается собственная обезболивающая (опиоидная) система. Что именно эти тормоза заканчивают приступ, у людей прямо не показано.',
+          'Боль уходит раньше, чем заканчивается весь приступ: после укола суматриптана боль прошла, а повышенная активность ствола мозга на снимке осталась.'],
+    feelTitle:'Что связано с окончанием боли', feel:['сон: в одном исследовании 14 из 50 человек сокращали приступ, поспав днём (в среднем 2,5 часа)','рвота: у 55% тех, кого рвёт во время приступа, после неё боль ослабевает (опрос)','раннее лечение: пока петля не разогналась, лекарства работают лучше (см. шаг «Петля»)'],
+    lit:['pag'], labels:['pag','tcc'], route:4, faint:true, inhib:true, src:['eigen21','juhasz03','nascimento14','weiller95','blau82','munafo26','burstein04']},
+  {id:'post', phase:'post', short:'Остывание', title:'Боль ушла, система остывает', time:'до 48 часов после боли',
+    what:['Когда боль стихает, мозг возвращается к обычной работе не сразу. Эту фазу называют [[postdrom|постдромом]].',
+          'Сигнал больше не бежит по цепочке, но силы потрачены, а некоторые симптомы держатся ещё до двух суток. Если приступы частые, хвост одного приступа может почти сливаться с предвестниками следующего.'],
+    feel:['усталость, «разбитость»','трудно сосредоточиться','скованность шеи'],
+    lit:[], labels:['cortex'], route:4, faint:true, src:['eigen21','premon']},
+  {id:'drugs', short:'Лекарства', title:'Где лекарства рвут цепочку',
+    list:['[[nspv|НПВС]] (ибупрофен, аспирин, напроксен, диклофенак) блокируют фермент циклооксигеназу (ЦОГ). Этот фермент делает простагландины — вещества воспаления, которые обостряют чувствительность датчиков боли. Нет фермента в работе — меньше простагландинов. У животных НПВС гасили сенситизацию и в оболочке, и в стволе мозга.','[[triptany|Триптаны]] уменьшают выброс CGRP из нерва.','[[gepanty|Гепанты]] (уброгепант и др.) и эренумаб закрывают «замок», через который действует CGRP.','[[antitela-k-cgrp|Антитела к CGRP]] ловят сам CGRP.','Крупные антитела почти не проходят [[geb|барьер мозга]], поэтому работают здесь — в оболочке и узле нерва.','[[preparaty-protiv-pacap|Лекарства против PACAP]] пока в испытаниях: одно антитело в фазе 2 снизило число дней мигрени.','[[profilaktika|Профилактика]] работает иначе: это курс между приступами, чтобы их стало меньше (шаг 13).'],
+    feelTitle:'Что это значит', feelText:'Почти все лекарства нацелены на шаги «Усилители» и «Петля». Уброгепант, принятый ещё на этапе предвестников, уменьшал трудности концентрации и мышления. Какой препарат и когда принимать, решает невролог.',
+    warn:'Любое средство от приступа при частом приёме может само поддерживать головную боль — это [[izbytok-lekarstv|головная боль от избытка лекарств]]. Граница по международным критериям: простые обезболивающие, включая НПВС, — 15 и более дней в месяц; триптаны и комбинированные средства — 10 и более дней в месяц, дольше 3 месяцев.',
+    lit:['tg','s1','s2','s3','vesselg'], labels:['dura','tg'], route:4, faint:true, drugs:true, mol:true, src:['ricciotti','levy08','jakub07','rabbie','ashina19','jak','edv','martin','hope','prodrome','steiner','eigen21']},
+  {id:'prev', short:'Профилактика', title:'Профилактика: чтобы приступы приходили реже', time:'курс на месяцы, в том числе в дни без боли',
+    blocks:[
+      {h:'Что это', p:['Лекарство от приступа (шаг 12) рвёт уже запущенную цепочку. [[profilaktika|Профилактику]] принимают по графику, даже в дни без боли: каждый день, раз в месяц или раз в три месяца. Цель — чтобы дней мигрени стало меньше.']},
+      {h:'Где она действует (щиты на рисунке)', list:[
+        'Оболочка мозга и узел нерва. [[antitela-k-cgrp|Антитела к CGRP]] ловят [[cgrp|CGRP]] или закрывают его рецептор. В мозг они почти не проходят (меньше 0,01%), поэтому считается, что действуют здесь, — это гипотеза. Гепанты атогепант и римегепант — маленькие молекулы — тоже закрывают рецептор CGRP. Препараты против CGRP помогают примерно половине людей.',
+        'Кора. Старые препараты — бета-блокаторы, топирамат, вальпроат, амитриптилин и др. — создавали против других болезней, и как они действуют при мигрени, неясно. У крыс топирамат, вальпроат, пропранолол и амитриптилин при ежедневном приёме неделями и месяцами снижали частоту [[volna-aury|волны ауры]] на 40–80%; одна доза не действовала. Но аура бывает примерно у 30% людей с мигренью, а запускает ли волна боль, спорят.',
+        'Мышцы головы и шеи. Сюда при хронической мигрени колют онаботулотоксин А. Дело не в расслаблении мышц: токсин ломает белок, без которого нервное окончание не может выбрасывать вещества. Предполагают, что из болевых волокон выходит меньше CGRP, до мозга доходит меньше сигналов и он меньше «разогревается» ([[sensitizaciya|сенситизация]]).'
+      ]},
+      {h:'Без лекарств', list:['Ровный режим: нерегулярный распорядок, плохой сон и стресс предрасполагают к приступам, пропуск еды — сильный [[triggery|триггер]] (мнение экспертов).','Аэробные нагрузки: после курса дней мигрени в среднем на 0,6 в месяц меньше; доказательства умеренные.','Специальной диеты от мигрени нет.']}
+    ],
+    feelTitle:'Чего ждать', feelText:'Эффект обычно скромный: на 1–3 дня мигрени в месяц меньше, чем на пустышке. Вдвое меньше приступов через 3 месяца бывает не больше чем у половины принимающих. Таблетки оценивают через 2–3 месяца, антитела — через 3–6, ботулотоксин — через 6–9.',
+    warn:'Препарат подбирает невролог. Топирамат может мешать беглости речи и скорости реакции — при [[kognitivnye-simptomy|когнитивных симптомах]] это стоит обсудить. Вальпроат строго противопоказан женщинам, которые могут забеременеть.',
+    lit:['tg','s1','s2','s3','vesselg'], labels:['pv-dura','pv-tg','pv-cortex','pv-botox'], route:4, faint:true, prev:true, src:['eigen21','steiner','robbins21','russo26','edvp','marichal21','ayata06','harriott25','puledda','burstein20','lemmens19','sommer13']}
+];
+const STEP_FOR = {migren:'map', prodrom:'prodrom', gipotalamus:'prodrom', triggery:'prodrom', aura:'aura', 'volna-aury':'aura', 'faza-boli':'sensors', obolochka:'sensors', 'datchiki-boli':'sensors', 'trojnichnyj-nerv':'nerve', 'trojnichnyj-uzel':'nerve', cgrp:'amp', pacap:'amp', 'krylonyobnyj-uzel':'amp', 'nejrogennoe-vospalenie':'amp', 'petlya-usileniya':'loop', sensitizaciya:'loop', 'stvol-mozga':'stem', talamus:'thal', svetoboyazn:'thal', kora:'cortex', 'kognitivnye-simptomy':'cortex', 'okonchanie-pristupa':'end', postdrom:'post', triptany:'drugs', gepanty:'drugs', 'antitela-k-cgrp':'drugs', 'preparaty-protiv-pacap':'drugs', geb:'drugs', nspv:'drugs', profilaktika:'prev', 'izbytok-lekarstv':'drugs'};
+const GROUPS = [
+  ['Фазы и симптомы',['migren','prodrom','aura','faza-boli','okonchanie-pristupa','postdrom','kognitivnye-simptomy']],
+  ['Где это происходит',['obolochka','datchiki-boli','trojnichnyj-nerv','trojnichnyj-uzel','krylonyobnyj-uzel','stvol-mozga','gipotalamus','talamus','kora']],
+  ['Как это работает',['petlya-usileniya','cgrp','pacap','sensitizaciya','volna-aury','nejrogennoe-vospalenie','svetoboyazn','geb']],
+  ['Триггеры и лечение',['triggery','nspv','triptany','gepanty','antitela-k-cgrp','preparaty-protiv-pacap','profilaktika','izbytok-lekarstv']]
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// [[slug|текст]] → кнопка-термин (на схеме) или ссылка (в вики)
+const asTerms = s => esc(s).replace(/\[\[([a-z0-9-]+)\|([^\]]+)\]\]/g, (m, slug, txt) => W[slug] ? `<button type="button" class="term" data-slug="${slug}" aria-expanded="false" aria-controls="pop" aria-haspopup="dialog">${txt}</button>` : txt);
+const asLinks = s => esc(s).replace(/\[\[([a-z0-9-]+)\|([^\]]+)\]\]/g, (m, slug, txt) => W[slug] ? `<a href="#w-${slug}">${txt}</a>` : txt);
+const srcList = keys => `<ul class="srcs">${keys.map(k => `<li><a href="${PM(SRC[k][1])}" target="_blank" rel="noopener">${SRC[k][0]}</a></li>`).join('')}</ul>`;
+
+/* ---------- схема ---------- */
+const S = {i:0};
+const svg = $('#head');
+const routes = [...svg.querySelectorAll('.route')];
+routes.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.dataset.len = L; });
+
+function buildTimeline(){
+  const groups = [];
+  STEPS.forEach((s, i) => { const k = s.phase || 'none'; const last = groups[groups.length-1]; if (last && last.k===k) last.items.push(i); else groups.push({k, items:[i]}); });
+  $('#timeline').innerHTML = groups.map(g => `<div class="ph ${g.k}">${g.k!=='none' ? `<div class="ph-h"><b>${PH[g.k][0]}</b><span>${PH[g.k][1]}</span></div>` : '<div class="ph-h">&nbsp;</div>'}<div class="pills">${g.items.map(i => `<button type="button" class="pill" data-i="${i}"><span class="n">${i}</span>${STEPS[i].short}</button>`).join('')}</div></div>`).join('');
+  $('#timeline').addEventListener('click', e => { const b = e.target.closest('.pill'); if (b) go(+b.dataset.i); });
+}
+
+let playT;
+function play(){ if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; svg.classList.add('play'); clearTimeout(playT); playT = setTimeout(() => svg.classList.remove('play'), 5000); }
+function go(i){ S.i = Math.max(0, Math.min(STEPS.length-1, i)); closePop(); renderPlate(); swapCard(); play();
+  $('#sr-step').textContent = (S.i ? `Шаг ${S.i} из ${STEPS.length-1}: ` : '') + STEPS[S.i].title;
+  try { history.replaceState(null, '', '#s-' + S.i); } catch(e){} }
+
+function renderPlate(){
+  const st = STEPS[S.i];
+  document.querySelectorAll('.pill').forEach(b => { const k = +b.dataset.i; b.classList.toggle('done', k < S.i); if (k===S.i) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
+  const cur = document.querySelector(`.pill[data-i="${S.i}"]`), tl = document.querySelector('.timeline');
+  if (cur && tl.scrollWidth > tl.clientWidth){ const r = cur.getBoundingClientRect(), t = tl.getBoundingClientRect(); tl.scrollLeft += r.left - t.left - (t.width - r.width) / 2; } // телефон: крутим только шкалу, страницу не дёргаем
+  else if (cur) cur.scrollIntoView({block:'nearest', inline:'center'});
+  svg.querySelectorAll('.on').forEach(n => n.classList.remove('on'));
+  st.lit.filter(id => id!=='csd').forEach(id => { const n = svg.getElementById(id); if (n) n.classList.add('on'); });
+  $('#csd').classList.toggle('show', st.lit.includes('csd'));
+  svg.querySelectorAll('.vessel').forEach(v => v.classList.toggle('wide', !!st.wide));
+  ['#molc','#molp','#pacpath'].forEach(s => $(s).classList.toggle('show', !!st.mol));
+  $('#loop').classList.toggle('show', !!st.loop);
+  $('#inhib').classList.toggle('show', !!st.inhib);
+  svg.querySelectorAll('.drug').forEach(d => d.classList.toggle('show', !!st.drugs));
+  $('#prv').classList.toggle('show', !!st.prev);
+  const when = {mol:!!st.mol, loop:!!st.loop, inhib:!!st.inhib, csd:st.lit.includes('csd'), drugs:!!st.drugs, prev:!!st.prev};
+  document.querySelectorAll('.plate-legend [data-when]').forEach(el => el.hidden = !when[el.dataset.when]);
+  $('#replay').hidden = !(st.mol || st.loop || st.inhib || when.csd);
+  svg.querySelectorAll('.lab').forEach(l => l.classList.toggle('show', st.labels.includes(l.dataset.lab)));
+  layoutLabels();
+  routes.forEach(p => {
+    const seg = +p.dataset.seg, L = +p.dataset.len;
+    p.classList.toggle('now', seg === st.route && !st.faint);
+    p.classList.toggle('faint', !!st.faint);
+    p.style.strokeDashoffset = seg <= st.route ? 0 : L;
+    if (seg === st.route && !st.faint) p.setAttribute('marker-end','url(#tip)'); else p.removeAttribute('marker-end');
+  });
+}
+
+function layoutLabels(){
+  const narrow = document.querySelector('figure').clientWidth <= 640;
+  svg.setAttribute('viewBox', narrow ? '136 0 534 520' : '0 0 800 520');
+  svg.querySelectorAll('.lab-n').forEach(n => n.remove());
+  const shown = narrow ? [...svg.querySelectorAll('.lab.show')] : [];
+  shown.forEach((g, k) => { const ln = g.querySelector('line'), x0 = +ln.getAttribute('x1'), x = x0 + (x0 < 400 ? 4 : -4), y = +ln.getAttribute('y1');
+    g.insertAdjacentHTML('beforeend', `<g class="lab-n"><circle cx="${x}" cy="${y}" r="13"/><text x="${x}" y="${y+5}" text-anchor="middle">${k+1}</text></g>`); });
+  $('#platecap').innerHTML = shown.map((g, k) => `<li><b>${k+1}</b><div>${g.querySelector('.t').textContent} <span>${g.querySelector('.s').textContent}</span></div></li>`).join('');
+}
+new ResizeObserver(layoutLabels).observe(document.querySelector('figure'));
+if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => svg.classList.toggle('idle', !e.isIntersecting)).observe(svg);
+function cardHTML(){
+  const st = STEPS[S.i];
+  const meta = `<div class="meta"><span class="stepno">${S.i===0 ? 'начало' : `шаг ${S.i} из ${STEPS.length-1}`}</span>${st.phase ? `<span class="phase-tag ${st.phase}">${PH[st.phase][0]}</span>` : ''}${st.time ? `<span class="time">${esc(st.time)}</span>` : ''}</div>`;
+  const body = st.blocks ? st.blocks.map(b => `<div class="prose"><h3>${b.h}</h3>${(b.p||[]).map(p => `<p>${asTerms(p)}</p>`).join('')}${b.list ? `<ul>${b.list.map(x => `<li>${asTerms(x)}</li>`).join('')}</ul>` : ''}</div>`).join('') : st.list ? `<ul>${st.list.map(x => `<li>${asTerms(x)}</li>`).join('')}</ul>` : `<div class="prose"><h3>Что происходит</h3>${st.what.map(p => `<p>${asTerms(p)}</p>`).join('')}</div>`;
+  const feel = st.feel ? `<div class="feel"><h3>${st.feelTitle || 'Как это ощущается'}</h3><ul>${st.feel.map(x => `<li>${asTerms(x)}</li>`).join('')}</ul></div>` : (st.feelText ? `<div class="feel"><h3>${st.feelTitle}</h3><p>${asTerms(st.feelText)}</p></div>` : '');
+  const warn = st.warn ? `<div class="warn" role="note"><b>${st.phase==='aura' ? 'Когда нужна срочная помощь' : 'Важно'}</b><span>${asTerms(st.warn)}</span></div>` : '';
+  const pep = st.pep ? (st.pep.c ? `<div class="pep c"><b>CGRP</b><span>${asTerms(st.pep.c)}</span></div>` : '') + (st.pep.p ? `<div class="pep p"><b>PACAP-38</b><span>${asTerms(st.pep.p)}</span></div>` : '') : '';
+  const slugs = [...new Set([...(st.what||[]), ...(st.list||[]), ...(st.feel||[]), ...(st.blocks||[]).flatMap(b => [...(b.p||[]), ...(b.list||[])]), st.pep?.c||'', st.pep?.p||''].join(' ').match(/\[\[([a-z0-9-]+)\|/g) || [])].map(m => m.slice(2,-1)).filter(s => W[s]);
+  const more = slugs.length ? `<h3>Подробнее в вики</h3><div class="more">${slugs.map(s => `<a href="#w-${s}">${esc(W[s].title)}</a>`).join('')}</div>` : '';
+  const src = st.src.length ? `<details class="src-d"><summary>Источники (${st.src.length})</summary>${srcList(st.src)}</details>` : '';
+  return `${meta}<h2 tabindex="-1">${esc(st.title)}</h2>${body}${feel}${warn}${pep}${more}${src}
+    <div class="nav"><button type="button" id="prev" ${S.i===0?'disabled':''}>← Назад</button>${S.i===STEPS.length-1 ? '<button type="button" class="primary" id="restart">К началу ↺</button>' : '<button type="button" class="primary" id="next">Дальше →</button>'}</div>`;
+}
+let swapT;
+function swapCard(first){
+  const b = $('#cardbody');
+  const had = b.contains(document.activeElement) ? document.activeElement.id : '';
+  const fill = () => { b.innerHTML = cardHTML(); b.classList.remove('swap'); if (had){ const el = document.getElementById(had); (el && !el.disabled ? el : b.querySelector('h2')).focus({preventScroll:true}); } };
+  if (first || matchMedia('(prefers-reduced-motion: reduce)').matches){ fill(); return; }
+  clearTimeout(swapT); b.classList.add('swap'); swapT = setTimeout(fill, 160);
+}
+// телефон/планшет: после «Назад/Дальше» — всегда к шкале и рисунку нового шага (одно и то же место, без анимации прокрутки)
+function goBar(i){ go(i);
+  if (!matchMedia('(max-width:940px)').matches) return;
+  const y = document.querySelector('.timeline').getBoundingClientRect().top + scrollY - 8;
+  if (y < scrollY) window.scrollTo(0, y);
+}
+$('#cardbody').addEventListener('click', e => {
+  if (e.target.closest('#prev')) return goBar(S.i-1);
+  if (e.target.closest('#next')) return goBar(S.i+1);
+  if (e.target.closest('#restart')) return goBar(0);
+  const t = e.target.closest('button.term'); if (t) togglePop(t);
+});
+
+/* всплывающее объяснение: без перерисовки карточки */
+let popFor = null;
+function togglePop(btn){
+  if (popFor === btn){ closePop(); return; }
+  closePop();
+  const a = W[btn.dataset.slug]; if (!a) return;
+  $('#pop-h').textContent = a.title; $('#pop-p').textContent = a.short; $('#pop-a').href = '#w-' + a.slug;
+  const main = $('#main').getBoundingClientRect(), r = btn.getBoundingClientRect(), pop = $('#pop');
+  const w = Math.min(340, main.width - 8);
+  let left = r.left - main.left; left = Math.max(4, Math.min(left, main.width - w - 4));
+  pop.style.left = left + 'px'; pop.style.top = (r.bottom - main.top + 8) + 'px';
+  pop.classList.add('open'); btn.setAttribute('aria-expanded','true'); popFor = btn;
+  const ph = pop.offsetHeight; if (r.bottom + 8 + ph > innerHeight && r.top - 8 - ph > 0) pop.style.top = (r.top - main.top - 8 - ph) + 'px';
+  pop.tabIndex = -1; pop.focus({preventScroll:true});
+}
+function closePop(){ const p = $('#pop'), back = p.contains(document.activeElement) ? popFor : null; p.classList.remove('open'); if (popFor) popFor.setAttribute('aria-expanded','false'); popFor = null; if (back) back.focus({preventScroll:true}); }
+$('#pop-x').addEventListener('click', closePop);
+document.addEventListener('click', e => { if (popFor && !e.target.closest('#pop') && !e.target.closest('button.term')) closePop(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePop();
+  if ($('#schemeView').hidden || e.target.closest('input,select,textarea')) return;
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if (e.key === 'ArrowRight') go(S.i+1);
+  if (e.key === 'ArrowLeft') go(S.i-1);
+});
+
+/* ---------- вики ---------- */
+function buildNav(cur){
+  $('#wikinav').innerHTML = `<a href="#wiki" ${!cur?'aria-current="page"':''}>Все статьи</a>` + GROUPS.map(([g, list]) => `<div><h2 class="nav-h">${g}</h2><ul>${list.filter(s => W[s]).map(s => `<li><a href="#w-${s}" ${cur===s?'aria-current="page"':''}>${esc(W[s].title)}</a></li>`).join('')}</ul></div>`).join('');
+}
+function renderIndex(){
+  $('#wikiView').classList.add('is-index');
+  buildNav(null);
+  $('#wikimain').innerHTML = WIKI.length ? GROUPS.map(([g, list]) => `<h2 class="grp-h">${g}</h2><div class="cards">${list.filter(s => W[s]).map(s => `<a href="#w-${s}"><b>${esc(W[s].title)}</b><span>${esc(W[s].short)}</span></a>`).join('')}</div>`).join('') : '<p>Статьи ещё не добавлены.</p>';
+}
+function renderArticle(slug){
+  const a = W[slug]; if (!a){ renderIndex(); return; }
+  $('#wikiView').classList.remove('is-index');
+  buildNav(slug);
+  const sec = (a.sections||[]).map((s, i) => `<h3 data-sec="${i}">${esc(s.h)}</h3>${(s.p||[]).map(p => `<p>${asLinks(p)}</p>`).join('')}${s.list ? `<ul>${s.list.map(x => `<li>${asLinks(x)}</li>`).join('')}</ul>` : ''}`).join('');
+  const feel = a.feel && a.feel.length ? `<h3>Как это ощущается</h3><ul>${a.feel.map(x => `<li>${asLinks(x)}</li>`).join('')}</ul>` : '';
+  const rel = (a.related||[]).filter(s => W[s]);
+  const step = STEPS.findIndex(s => s.id === STEP_FOR[slug]);
+  const ORDER = GROUPS.flatMap(g => g[1]).filter(s => W[s]), k = ORDER.indexOf(slug);
+  const prev = k > 0 ? ORDER[k-1] : null, next = k >= 0 ? ORDER[k+1] : null;
+  const pager = `<div class="doc-pager" role="navigation" aria-label="Другие статьи">${prev ? `<a href="#w-${prev}" rel="prev"><small>← Предыдущая</small>${esc(W[prev].title)}</a>` : ''}${next ? `<a href="#w-${next}" rel="next"><small>Следующая →</small>${esc(W[next].title)}</a>` : ''}<a href="#wiki"><small>Вики</small>Все статьи</a></div>`;
+  $('#wikimain').innerHTML = `<article class="doc">
+    <a class="doc-back" href="#wiki">← Все статьи</a>
+    <div class="doc-meta">${a.duration ? `<span>Длительность: ${esc(a.duration)}</span>` : ''}${step>=0 ? `<button type="button" id="toStep">Показать на схеме → шаг ${step}</button>` : ''}</div>
+    <h2>${esc(a.title)}</h2>
+    <p class="lead">${esc(a.short)}</p>
+    ${(a.sections||[]).length > 4 ? `<details class="doc-toc"><summary>Разделы статьи (${a.sections.length})</summary><ol>${a.sections.map((s, i) => `<li><button type="button" data-sec="${i}">${esc(s.h)}</button></li>`).join('')}</ol></details>` : ''}
+    ${sec}${feel}
+    ${rel.length ? `<h3>Связанные статьи</h3><p class="doc-rel">${rel.map(s => `<a href="#w-${s}">${esc(W[s].title)}</a>`).join('<span class="sep" aria-hidden="true"> · </span>')}</p>` : ''}
+    ${a.sources && a.sources.length ? (matchMedia('(max-width:860px)').matches ? `<details class="src-d doc-src"><summary>Источники (${a.sources.length})</summary>` : '<h3>Источники</h3>') + `<ul class="srcs">${a.sources.map(s => `<li><a href="${PM(s.pmid)}" target="_blank" rel="noopener">${esc(s.label)}</a></li>`).join('')}</ul>` + (matchMedia('(max-width:860px)').matches ? '</details>' : '') : ''}
+    ${pager}
+  </article>`;
+  const b = $('#toStep'); if (b) b.addEventListener('click', () => { location.hash = 's-' + step; });
+}
+
+/* ---------- маршруты ---------- */
+let prevIdx = false, indexY = 0;  // где читатель был в списке статей
+function route(){
+  const h = location.hash.slice(1);
+  const wiki = h === 'wiki' || h.startsWith('w-');
+  document.body.classList.toggle('in-wiki', wiki);
+  if (prevIdx && h !== 'wiki') indexY = scrollY;  // уходим со списка — запомнить место
+  prevIdx = h === 'wiki';
+  const art = h.startsWith('w-') ? W[h.slice(2)] : null;
+  document.title = (wiki ? (art ? art.title : 'Вики') : 'Схема приступа') + ' — Атлас мигрени';
+  $('#schemeView').hidden = wiki; $('#wikiView').hidden = !wiki;
+  $('#tab-scheme').toggleAttribute('aria-current', !wiki); $('#tab-wiki').toggleAttribute('aria-current', wiki);
+  if (!wiki){ $('#tab-scheme').setAttribute('aria-current','page'); $('#pagetitle').textContent = 'Как идёт приступ';
+    const m = h.match(/^s-(\d+)$/); if (m && +m[1] !== S.i && +m[1] < STEPS.length) go(+m[1]);
+    return; }
+  $('#tab-wiki').setAttribute('aria-current','page');
+  closePop();
+  if (h.startsWith('w-')){ renderArticle(h.slice(2)); $('#pagetitle').textContent = 'Вики'; }
+  else { renderIndex(); $('#pagetitle').textContent = 'Вики'; }
+  window.scrollTo(0, h === 'wiki' ? indexY : 0);
+  const f = $('#wikimain h2, #wikimain .grp-h'); if (f){ f.tabIndex = -1; f.focus({preventScroll:true}); }
+}
+window.addEventListener('hashchange', route);
+$('#wikimain').addEventListener('click', e => { const b = e.target.closest('.doc-toc button'); if (!b) return;
+  const h = document.querySelector(`#wikimain h3[data-sec="${b.dataset.sec}"]`); if (!h) return;
+  window.scrollTo(0, h.getBoundingClientRect().top + scrollY - 12); h.tabIndex = -1; h.focus({preventScroll:true}); });
+$('#replay').addEventListener('click', play);
+
+buildTimeline(); renderPlate(); swapCard(true); route();
+</script>
