@@ -1,4 +1,5 @@
 <title>Атлас мигрени</title>
+<script>try { const t = localStorage.getItem('atlas-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
@@ -7,7 +8,7 @@
 :root{
   --bg:#EEF1F4; --surface:#FFFFFF; --surface2:#F6F8FA; --ink:#17202B; --muted:#586577; --line:#C9D1DA; --soft:#E3E8ED;
   --cgrp:#B4570F; --pacap:#3953CC; --link:#2B5FB8;
-  --ph-prodrom:#7A5BB5; --ph-aura:#8F6100; --ph-pain:#B4453A; --ph-post:#40705F; --warn-bg:#FBEDEB;
+  --ph-prodrom:#7A5BB5; --ph-aura:#8F6100; --ph-pain:#B4453A; --ph-post:#40705F; --ph-treat:#23705F; --warn-bg:#FBEDEB;
   --f-display:"Spectral", Georgia, "Times New Roman", serif;
   --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -17,11 +18,11 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#0E1318; --surface:#161D24; --surface2:#1B232C; --ink:#E5EAF0; --muted:#9AA6B5; --line:#2F3A46; --soft:#232D38;
   --cgrp:#F09A52; --pacap:#93A5FF; --link:#8DB4FF;
-  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark } }
+  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --ph-treat:#5FBFA9; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark } }
 :root[data-theme="dark"]{
   --bg:#0E1318; --surface:#161D24; --surface2:#1B232C; --ink:#E5EAF0; --muted:#9AA6B5; --line:#2F3A46; --soft:#232D38;
   --cgrp:#F09A52; --pacap:#93A5FF; --link:#8DB4FF;
-  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark }
+  --ph-prodrom:#B39DF0; --ph-aura:#F2C14E; --ph-pain:#F08A7E; --ph-post:#8CC7B2; --ph-treat:#5FBFA9; --pl-bg:#1A2129; --pl-ink:#E5EAF0; --pl-muted:#A9B4C2; --pl-dim:url(#dim); --pl-prev:#5FBFA9; --warn-bg:#2A1C1C; color-scheme:dark }
 
 *{box-sizing:border-box}
 body{background:var(--bg); color:var(--ink); font:16px/1.6 var(--f-body); padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); padding-block:22px 48px}
@@ -30,9 +31,11 @@ a{color:var(--link); text-underline-offset:3px}
 button:focus-visible, a:focus-visible{outline:2px solid var(--link); outline-offset:2px}
 [tabindex="-1"]:focus{outline:none}
 
-.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px 24px}
-.top .ttl{display:flex; flex-direction:column; gap:4px}
-.eyebrow{font:500 12px/1 var(--f-mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.top{display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px}
+.top .ttl{display:flex; flex-direction:column; gap:4px; margin-right:auto}
+/* переключатель темы: луна — включить ночную, солнце — дневную */
+.theme-t{display:inline-grid; place-items:center; align-self:stretch; min-width:44px; min-height:40px; padding:0 10px; border:0; border-radius:10px; background:var(--soft); color:var(--ink); cursor:pointer}
+.theme-t:hover{color:var(--link)} .theme-t .sun, .theme-t[data-mode="dark"] .moon{display:none} .theme-t[data-mode="dark"] .sun{display:block}
 h1{font:600 clamp(26px,3.8vw,36px)/1.1 var(--f-display); margin:0; text-wrap:balance}
 .tabs{display:inline-flex; background:var(--soft); border-radius:10px; padding:3px; gap:2px}
 .tabs a{font:500 14px/1 var(--f-body); color:var(--muted); text-decoration:none; border-radius:8px; padding:9px 16px}
@@ -41,8 +44,7 @@ h1{font:600 clamp(26px,3.8vw,36px)/1.1 var(--f-display); margin:0; text-wrap:bal
 /* шкала фаз */
 .timeline{overflow-x:auto; padding:4px 4px 6px; margin:-4px -4px 0}
 .tl-row{display:flex; gap:8px; min-width:max-content; align-items:stretch}
-@media (min-width:641px){ .tl-row{flex-wrap:wrap; min-width:0; row-gap:12px} }
-@media (max-width:640px){ .ph .ph-h{position:sticky; left:0; align-self:flex-start} .tl-row{padding-right:40px} .timeline{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)} }
+@media (max-width:1199px){ .ph .ph-h{position:sticky; left:0; align-self:flex-start} .tl-row{padding-right:40px} .timeline{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)} }
 .ph{display:flex; flex-direction:column; gap:6px; border-top:4px solid var(--line); padding-top:6px}
 .ph .ph-h{display:flex; align-items:baseline; gap:8px; padding-inline:2px; font-size:13px; white-space:nowrap}
 .ph .ph-h b{font-weight:600}
@@ -51,6 +53,7 @@ h1{font:600 clamp(26px,3.8vw,36px)/1.1 var(--f-display); margin:0; text-wrap:bal
 .ph.aura{border-color:var(--ph-aura); border-top-style:dashed} .ph.aura b{color:var(--ph-aura)}
 .ph.pain{border-color:var(--ph-pain)} .ph.pain b{color:var(--ph-pain)}
 .ph.post{border-color:var(--ph-post)} .ph.post b{color:var(--ph-post)}
+.ph.treat{border-color:var(--ph-treat)} .ph.treat b{color:var(--ph-treat)}
 .ph.none{border-color:transparent}
 .ph .pills{display:flex; gap:5px}
 .pill{display:flex; align-items:center; gap:7px; font:500 13.5px/1 var(--f-body); color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:6px 11px 6px 6px; cursor:pointer; white-space:nowrap}
@@ -134,7 +137,7 @@ svg.head .prv text{fill:var(--pl-prev); font:700 6px var(--f-body)}
 .meta{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .stepno{font:500 12px/1 var(--f-mono); letter-spacing:.06em; color:var(--muted); text-transform:uppercase}
 .phase-tag{font:600 11.5px/1 var(--f-mono); letter-spacing:.04em; padding:4px 8px; border-radius:6px; border:1px solid currentColor}
-.phase-tag.prodrom{color:var(--ph-prodrom)} .phase-tag.aura{color:var(--ph-aura)} .phase-tag.pain{color:var(--ph-pain)} .phase-tag.post{color:var(--ph-post)}
+.phase-tag.prodrom{color:var(--ph-prodrom)} .phase-tag.aura{color:var(--ph-aura)} .phase-tag.pain{color:var(--ph-pain)} .phase-tag.post{color:var(--ph-post)} .phase-tag.treat{color:var(--ph-treat)}
 .time{font-size:13px; color:var(--muted)}
 .card h2{margin:0; font:600 24px/1.2 var(--f-display); text-wrap:balance}
 .card h3{margin:4px 0 0; font:600 14px/1.3 var(--f-body); color:var(--ink)}
@@ -215,7 +218,7 @@ footer{color:var(--muted); font-size:12.5px; max-width:90ch}
 /* F2: в вики на телефоне h1 «Вики» дублирует активную вкладку — прячем визуально (для читалок остаётся); вкладки на всю ширину; заголовок статьи — первым */
 @media (max-width:640px){
   .in-wiki .top .ttl{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
-  .tabs{display:flex; width:100%} .tabs a{flex:1; text-align:center}
+  .top .ttl{flex-basis:100%; margin-right:0} .tabs{display:flex; flex:1} .tabs a{flex:1; text-align:center}
 }
 @media (max-width:860px){ article.doc h2{order:-3} .doc-meta{order:-2} }
 /* F3: на телефоне статья и карточка шага — во всю ширину экрана, поля 16 px; лид без серой плашки */
@@ -276,19 +279,36 @@ footer{color:var(--muted); font-size:12.5px; max-width:90ch}
 }
 /* F16: на телефоне активная вкладка отмечена ещё и полосой снизу — заметно в обеих темах */
 @media (max-width:640px){ .tabs a[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--link), 0 1px 2px rgba(0,0,0,.12)} }
+/* шкала на широком экране: одна строка-степпер (стоит в конце, чтобы перекрыть базовые стили .pill) */
+@media (min-width:1200px){
+  /* степпер: фазы — цветные полосы с подписью в две строки, шаги — кружок с номером и подпись под ним */
+  .tl-row{gap:12px} .ph{flex-grow:var(--k,1)} .ph .pills{justify-content:space-between}
+  .ph{gap:8px}
+  .ph .ph-h{flex-direction:column; align-items:flex-start; gap:2px; min-height:36px; line-height:1.2}
+  .ph .pills{gap:0}
+  .pill{flex-direction:column; gap:6px; padding:5px 6px 7px; border:0; border-radius:10px; background:none; font:500 12.5px/1.2 var(--f-body)}
+  .pill .n{width:28px; height:28px; font-size:12px; border:1px solid var(--line); background:var(--surface)}
+  .pill.done .n{border-color:var(--ink)}
+  .pill:hover{background:var(--surface)} .pill:hover .n{border-color:var(--muted)}
+  .pill[aria-current="step"]{box-shadow:none; font-weight:600}
+  .pill[aria-current="step"] .n{border-color:var(--ink); box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--ink)}
+}
 </style>
 
 <div class="wrap" lang="ru">
   <a class="sr skip" href="#card">К тексту шага</a>
   <div class="top">
     <div class="ttl">
-      <div class="eyebrow">мигрень · личная вики</div>
       <h1 id="pagetitle">Как идёт приступ</h1>
     </div>
     <nav class="tabs" aria-label="Разделы">
       <a href="#scheme" id="tab-scheme" aria-current="page">Схема приступа</a>
       <a href="#wiki" id="tab-wiki">Вики</a>
     </nav>
+    <button type="button" class="theme-t" id="themeT" aria-label="Включить тёмную тему" title="Включить тёмную тему">
+      <svg class="moon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>
+      <svg class="sun" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
   </div>
 
   <section id="schemeView">
@@ -388,7 +408,7 @@ const SRC = {
   lemmens19:['Lemmens 2019 · J Headache Pain — аэробные нагрузки при мигрени',30764753],
   sommer13:['Sommer 2013 · Ther Adv Neurol Disord — топирамат и мышление',23858325]
 };
-const PH = {prodrom:['Предвестники','до 48 ч'], aura:['Аура','5–60 мин · не у всех'], pain:['Боль','4–72 ч'], post:['Последствия','до 48 ч']};
+const PH = {prodrom:['Предвестники','до 48 ч'], aura:['Аура','5–60 мин · не у всех'], pain:['Боль','4–72 ч'], post:['Последствия','до 48 ч'], treat:['Лечение','']};
 
 const STEPS = [
   {id:'map', short:'Мигрень', title:'Что такое мигрень',
@@ -473,12 +493,12 @@ const STEPS = [
           'Сигнал больше не бежит по цепочке, но силы потрачены, а некоторые симптомы держатся ещё до двух суток. Если приступы частые, хвост одного приступа может почти сливаться с предвестниками следующего.'],
     feel:['усталость, «разбитость»','трудно сосредоточиться','скованность шеи'],
     lit:[], labels:['cortex'], route:4, faint:true, src:['eigen21','premon']},
-  {id:'drugs', short:'Лекарства', title:'Где лекарства рвут цепочку',
+  {id:'drugs', phase:'treat', short:'Лекарства', title:'Где лекарства рвут цепочку',
     list:['[[nspv|НПВС]] (ибупрофен, аспирин, напроксен, диклофенак) блокируют фермент циклооксигеназу (ЦОГ). Этот фермент делает простагландины — вещества воспаления, которые обостряют чувствительность датчиков боли. Нет фермента в работе — меньше простагландинов. У животных НПВС гасили сенситизацию и в оболочке, и в стволе мозга.','[[triptany|Триптаны]] уменьшают выброс CGRP из нерва.','[[gepanty|Гепанты]] (уброгепант и др.) и эренумаб закрывают «замок», через который действует CGRP.','[[antitela-k-cgrp|Антитела к CGRP]] ловят сам CGRP.','Крупные антитела почти не проходят [[geb|барьер мозга]], поэтому работают здесь — в оболочке и узле нерва.','[[preparaty-protiv-pacap|Лекарства против PACAP]] пока в испытаниях: одно антитело в фазе 2 снизило число дней мигрени.','[[profilaktika|Профилактика]] работает иначе: это курс между приступами, чтобы их стало меньше (шаг 13).'],
     feelTitle:'Что это значит', feelText:'Почти все лекарства нацелены на шаги «Усилители» и «Петля». Уброгепант, принятый ещё на этапе предвестников, уменьшал трудности концентрации и мышления. Какой препарат и когда принимать, решает невролог.',
     warn:'Любое средство от приступа при частом приёме может само поддерживать головную боль — это [[izbytok-lekarstv|головная боль от избытка лекарств]]. Граница по международным критериям: простые обезболивающие, включая НПВС, — 15 и более дней в месяц; триптаны и комбинированные средства — 10 и более дней в месяц, дольше 3 месяцев.',
     lit:['tg','s1','s2','s3','vesselg'], labels:['dura','tg'], route:4, faint:true, drugs:true, mol:true, src:['ricciotti','levy08','jakub07','rabbie','ashina19','jak','edv','martin','hope','prodrome','steiner','eigen21']},
-  {id:'prev', short:'Профилактика', title:'Профилактика: чтобы приступы приходили реже', time:'курс на месяцы, в том числе в дни без боли',
+  {id:'prev', phase:'treat', short:'Профилактика', title:'Профилактика: чтобы приступы приходили реже', time:'курс на месяцы, в том числе в дни без боли',
     blocks:[
       {h:'Что это', p:['Лекарство от приступа (шаг 12) рвёт уже запущенную цепочку. [[profilaktika|Профилактику]] принимают по графику, даже в дни без боли: каждый день, раз в месяц или раз в три месяца. Цель — чтобы дней мигрени стало меньше.']},
       {h:'Где она действует (щиты на рисунке)', list:[
@@ -516,7 +536,7 @@ routes.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L;
 function buildTimeline(){
   const groups = [];
   STEPS.forEach((s, i) => { const k = s.phase || 'none'; const last = groups[groups.length-1]; if (last && last.k===k) last.items.push(i); else groups.push({k, items:[i]}); });
-  $('#timeline').innerHTML = groups.map(g => `<div class="ph ${g.k}">${g.k!=='none' ? `<div class="ph-h"><b>${PH[g.k][0]}</b><span>${PH[g.k][1]}</span></div>` : '<div class="ph-h">&nbsp;</div>'}<div class="pills">${g.items.map(i => `<button type="button" class="pill" data-i="${i}"><span class="n">${i}</span>${STEPS[i].short}</button>`).join('')}</div></div>`).join('');
+  $('#timeline').innerHTML = groups.map(g => `<div class="ph ${g.k}" style="--k:${g.items.length}">${g.k!=='none' ? `<div class="ph-h"><b>${PH[g.k][0]}</b><span>${PH[g.k][1]}</span></div>` : '<div class="ph-h">&nbsp;</div>'}<div class="pills">${g.items.map(i => `<button type="button" class="pill" data-i="${i}"><span class="n">${i}</span>${STEPS[i].short}</button>`).join('')}</div></div>`).join('');
   $('#timeline').addEventListener('click', e => { const b = e.target.closest('.pill'); if (b) go(+b.dataset.i); });
 }
 
@@ -687,6 +707,15 @@ $('#wikimain').addEventListener('click', e => { const b = e.target.closest('.doc
   const h = document.querySelector(`#wikimain h3[data-sec="${b.dataset.sec}"]`); if (!h) return;
   window.scrollTo(0, h.getBoundingClientRect().top + scrollY - 12); h.tabIndex = -1; h.focus({preventScroll:true}); });
 $('#replay').addEventListener('click', play);
+
+/* ---------- тема: день / ночь ---------- */
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : darkMQ.matches; };
+function syncTheme(){ const d = isDark(), b = $('#themeT'), l = d ? 'Включить светлую тему' : 'Включить тёмную тему'; b.dataset.mode = d ? 'dark' : 'light'; b.setAttribute('aria-label', l); b.title = l; }
+$('#themeT').addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('atlas-theme', t); } catch(e){} syncTheme(); });
+new MutationObserver(syncTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+if (darkMQ.addEventListener) darkMQ.addEventListener('change', syncTheme);
+syncTheme();
 
 buildTimeline(); renderPlate(); swapCard(true); route();
 </script>
